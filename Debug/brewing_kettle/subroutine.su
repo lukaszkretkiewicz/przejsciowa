@@ -1,8 +1,8 @@
 subroutine.c:13:6:convertToStucture	144	static
 subroutine.c:68:10:przewinDo	16	static
 subroutine.c:73:10:readTemperature	24	static
-subroutine.c:105:10:conv	24	static
-subroutine.c:115:6:push_front	32	static
-subroutine.c:123:6:push_back	24	static
-subroutine.c:139:6:show	160	static
-subroutine.c:158:10:list_size	24	static
+subroutine.c:108:10:conv	24	static
+subroutine.c:118:6:push_front	32	static
+subroutine.c:126:6:push_back	24	static
+subroutine.c:142:6:show	160	static
+subroutine.c:163:10:list_size	24	static

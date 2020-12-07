@@ -39,7 +39,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define SIZE_OF_MSG 9
+#define SIZE_OF_MSG 28
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/

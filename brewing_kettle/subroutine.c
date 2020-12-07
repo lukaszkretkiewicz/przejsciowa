@@ -73,18 +73,19 @@ uint8_t* przewinDo(uint8_t *msg, uint8_t znak) {
 uint8_t* readTemperature(uint8_t *msg, Subroutine *dataTemp,
 		uint8_t currentCycle) {
 	//--------jezeli faktycznieeee poprawnie uzyte----------
-	if ((*msg) != '\0' && strstr((char*) msg, "S")) {
+	if ((*msg) != '\0') {
 		//-------przewiń do S------
-		while ((*msg++) != 'S')
-			;
-		//-------PID lub dwustawna--------
-		dataTemp->regType = *msg++ == 0 ? false : true;
-
+		if (strstr((char*) msg, "S")) {
+			while ((*msg++) != 'S')
+				;
+			//-------PID lub dwustawna--------
+			dataTemp->regType = *msg++ == 0 ? false : true;
+		}
 		//-------Wypełnienie cykli--------
 
 		/*tymczasowa convna temp służy do
 		 zamienienia kilkucyfrowego ciągu znaków w liczbę*/
-		while (*msg != '\0') {
+		while (*msg != ';') {
 
 			//-----Pobranie temperatury------
 			if (*msg == 'T') {
@@ -97,10 +98,12 @@ uint8_t* readTemperature(uint8_t *msg, Subroutine *dataTemp,
 
 			} else if (*msg == 'P') {
 				msg = conv(msg, &dataTemp->pumpingTime);
-			}
+			} else
+				break;
+
 		}
 	}
-	return msg; //zwroc wskaznik w ostatnim polozeniu
+	return (*msg) != '\0' ? ++msg : msg; //zwroc wskaznik w ostatnim polozeniu
 }
 uint8_t* conv(uint8_t *msg, uint8_t *digit) {
 	uint8_t temp[3] = { 'a' };
@@ -137,18 +140,20 @@ void push_back(List **head, Subroutine data) {
 	}
 }
 void show(List *head) {
-	uint8_t tekst1[]="List is empty\n\r";
+	uint8_t tekst1[] = "List is empty\n\r";
 	uint8_t tekst[100];
 	if (head == NULL)
-		HAL_UART_Transmit_DMA(&huart2, (char*)tekst1, sizeof(tekst1));
+		HAL_UART_Transmit_DMA(&huart2, (char*) tekst1, sizeof(tekst1));
 	else {
 		List *current = head;
 		do {
 			uint8_t size1;
-			size1=sprintf(tekst,"ID: %d\n\rNazwa: %s\c\rTyp regulacji: %s\n\r",current->data.ID,current->data.name,current->data.regType==1?"PID":"Dwustawna");
+			size1 = sprintf((char*) tekst,
+					"ID: %d\n\rNazwa: %s\n\rTyp regulacji: %s\n\r",
+					current->data.ID, current->data.name,
+					current->data.regType == 1 ? "PID" : "Dwustawna");
 
-
-			HAL_UART_Transmit_DMA(&huart2, tekst, sizeof(tekst1));
+			HAL_UART_Transmit_DMA(&huart2, tekst, size1);
 
 			current = current->next;
 		} while (current != NULL);
