@@ -42,6 +42,7 @@ void convertToStucture(uint8_t *msg, struct List **prog) {
 		tempData.ID = ID;
 		ID++;
 		push_front(prog, tempData);
+		(*prog)->data = tempData;
 	} else if (strncmp((char*) buffor, "LIST", 4) == 0) { //------------LIST--------------
 		show(*prog);
 	} else if (strncmp((char*) buffor, "READ", 4) == 0) {
@@ -57,13 +58,12 @@ void convertToStucture(uint8_t *msg, struct List **prog) {
 		for (uint8_t i = 0; i < 5; i++) {
 			msg = readTemperature(msg, &tempData, i);
 		}
-
+		(*prog)->data = tempData;
 	} else if (strncmp((char*) buffor, "ACTIVE", 6) == 0) { //----------ACTIVE-------------
 
 	}
-
-	//----------Przypisanie tempData do wejsciowej listy
-	(*prog)->data = tempData;
+	//--------przewin msg do konca------------
+	msg=przewinDo(msg,'\0');
 }
 uint8_t* przewinDo(uint8_t *msg, uint8_t znak) {
 	while (!(*(++msg) == znak))
@@ -140,21 +140,21 @@ void push_back(List **head, Subroutine data) {
 	}
 }
 void show(List *head) {
-	uint8_t tekst1[] = "List is empty\n\r";
-	uint8_t tekst[100];
+	char tekst1[] = "List is empty\n\r";
 	if (head == NULL)
-		HAL_UART_Transmit_DMA(&huart2, (char*) tekst1, sizeof(tekst1));
+		HAL_UART_Transmit_DMA(&huart2,  tekst1, sizeof(tekst1));
 	else {
 		List *current = head;
 		do {
-			uint8_t size1;
-			size1 = sprintf((char*) tekst,
+			uint8_t extern size1;
+			uint8_t extern wysylanaWiadomosc[100];
+			size1 = sprintf((char*) wysylanaWiadomosc,
 					"ID: %d\n\rNazwa: %s\n\rTyp regulacji: %s\n\r",
 					current->data.ID, current->data.name,
 					current->data.regType == 1 ? "PID" : "Dwustawna");
 
-			HAL_UART_Transmit_DMA(&huart2, tekst, size1);
-
+			//HAL_UART_Transmit_DMA(&huart2, tekst, size1);
+			HAL_UART_Transmit_IT(&huart2, wysylanaWiadomosc, size1);
 			current = current->next;
 		} while (current != NULL);
 

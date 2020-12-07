@@ -4,5 +4,5 @@ subroutine.c:73:10:readTemperature	24	static
 subroutine.c:108:10:conv	24	static
 subroutine.c:118:6:push_front	32	static
 subroutine.c:126:6:push_back	24	static
-subroutine.c:142:6:show	160	static
+subroutine.c:142:6:show	56	static
 subroutine.c:163:10:list_size	24	static
