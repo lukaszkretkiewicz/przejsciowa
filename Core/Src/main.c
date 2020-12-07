@@ -20,7 +20,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
-#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -61,8 +60,7 @@ uint8_t pageID; // numer aktualnie wyświetlanej strony
 uint8_t progID; // numer aktywnego programu
 uint8_t odebranaWiadomosc[110]; //string przychodzący z płytki
 
-uint8_t wysylanaWiadomosc[100];
-uint8_t size1;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -70,7 +68,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void initOneWayList();
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)  ;
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -108,7 +106,6 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART2_UART_Init();
-  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 	HAL_UART_Receive_DMA(&huart2, odebranaWiadomosc, SIZE_OF_MSG);
 	//initOneWayList();
@@ -176,11 +173,7 @@ void initOneWayList() {
 	for (int i = 0; i < sizeof(head->data.name[i] = 0); i++)
 		; //wypelnienie tablicy name zerami
 }
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	if(htim->Instance==TIM1){
-		HAL_UART_Transmit_IT(&huart2, wysylanaWiadomosc, size1);
-	}
-}
+
 /* USER CODE END 4 */
 
 /**

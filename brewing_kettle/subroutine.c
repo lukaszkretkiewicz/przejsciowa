@@ -63,7 +63,7 @@ void convertToStucture(uint8_t *msg, struct List **prog) {
 
 	}
 	//--------przewin msg do konca------------
-	msg=przewinDo(msg,'\0');
+	msg = przewinDo(msg, '\0');
 }
 uint8_t* przewinDo(uint8_t *msg, uint8_t znak) {
 	while (!(*(++msg) == znak))
@@ -142,22 +142,42 @@ void push_back(List **head, Subroutine data) {
 void show(List *head) {
 	char tekst1[] = "List is empty\n\r";
 	if (head == NULL)
-		HAL_UART_Transmit_DMA(&huart2,  tekst1, sizeof(tekst1));
+		HAL_UART_Transmit_DMA(&huart2, tekst1, sizeof(tekst1));
 	else {
 		List *current = head;
-		do {
-			uint8_t extern size1;
-			uint8_t extern wysylanaWiadomosc[100];
-			size1 = sprintf((char*) wysylanaWiadomosc,
-					"ID: %d\n\rNazwa: %s\n\rTyp regulacji: %s\n\r",
-					current->data.ID, current->data.name,
-					current->data.regType == 1 ? "PID" : "Dwustawna");
+		uint8_t *wysylanaWiadomosc;
+		wysylanaWiadomosc =
+				(uint8_t*) malloc(
+						list_size(head) * sizeof(uint8_t)
+								* strlen(
+										"ID: %d\n\rNazwa: %s\n\rTyp regulacji: %s\n\r"));
+		/*Przez to, że \s to raz PID, raz łańcuch o innej dlugosci, to niepoprawnie dobierana jest rzeczywista
+		 *  dlugosc calkowitego lancucha znakow i malloc dostaje niepoprawny rozmiar.
+		 *  mozna sprobowac np pisac size+=spintf(buffer[100]...) i na tym size pozniej zrobic malloc. 		 */
 
-			//HAL_UART_Transmit_DMA(&huart2, tekst, size1);
-			HAL_UART_Transmit_IT(&huart2, wysylanaWiadomosc, size1);
+		uint8_t i = 0;
+		do {
+			if (i == 0) {
+				sprintf((char*) wysylanaWiadomosc,
+						"ID: %d\n\rNazwa: %s\n\rTyp regulacji: %s\n\r",
+						current->data.ID, current->data.name,
+						current->data.regType == 1 ? "PID" : "Dwustawna");
+			} else {
+				sprintf(
+						(char*) wysylanaWiadomosc
+								+ strlen((char*) wysylanaWiadomosc),
+						"ID: %d\n\rNazwa: %s\n\rTyp regulacji: %s\n\r",
+						current->data.ID, current->data.name,
+						current->data.regType == 1 ? "PID" : "Dwustawna");
+			}
+
 			current = current->next;
+			i++;
 		} while (current != NULL);
 
+		HAL_UART_Transmit_DMA(&huart2, wysylanaWiadomosc,
+				strlen((char*) wysylanaWiadomosc));
+		free(wysylanaWiadomosc);
 	}
 }
 uint16_t list_size(List *head) {

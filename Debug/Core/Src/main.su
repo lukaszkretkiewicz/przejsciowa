@@ -1,6 +1,5 @@
-main.c:85:5:main	8	static
-main.c:131:6:SystemClock_Config	72	static
-main.c:165:6:HAL_UART_RxCpltCallback	16	static
-main.c:173:6:initOneWayList	16	static
-main.c:179:6:HAL_TIM_PeriodElapsedCallback	16	static
-main.c:190:6:Error_Handler	4	static
+main.c:83:5:main	8	static
+main.c:128:6:SystemClock_Config	72	static
+main.c:162:6:HAL_UART_RxCpltCallback	16	static
+main.c:170:6:initOneWayList	16	static
+main.c:183:6:Error_Handler	4	static
