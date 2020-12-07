@@ -72,7 +72,7 @@ uint8_t* przewinDo(uint8_t *msg, uint8_t znak) {
 }
 uint8_t* readTemperature(uint8_t *msg, Subroutine *dataTemp,
 		uint8_t currentCycle) {
-	//--------jezeli poprawnie uzyte---------
+	//--------jezeli poprawnie uzyte----------
 	if ((*msg) != '\0' && strstr((char*) msg, "S")) {
 		//-------przewiń do S------
 		while ((*msg++) != 'S')
