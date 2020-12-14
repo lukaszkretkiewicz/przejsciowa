@@ -37,7 +37,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define SIZE_OF_MSG 28
+#define SIZE_OF_MSG 28 //NEW PROG:[5];S0T12t66;T33t18
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/

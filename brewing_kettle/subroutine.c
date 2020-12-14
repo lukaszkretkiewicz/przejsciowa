@@ -58,11 +58,22 @@ void convertToStucture(uint8_t *msg, struct List **prog) {
 		for (uint8_t i = 0; i < 5; i++) {
 			msg = readTemperature(msg, &tempData, i);
 		}
-		(*prog)->data = tempData;
+		List *current = (*prog);
+
+		for (int i = 0; i < list_size((*prog)); i++, current = current->next) {
+			if ((*prog)->data.ID == tempData.ID) {
+				(*prog)->data = tempData;
+				break;
+			}
+		}
+		//------jeżeli nie ma takiego programu----------
+		HAL_UART_Transmit_DMA(&huart2, "Nie ma programu o takim ID\n\r",
+								sizeof("Nie ma programu o takim ID\n\r"));
+
 	} else if (strncmp((char*) buffor, "ACTIVE", 6) == 0) { //----------ACTIVE-------------
 
 	}
-	//--------przewin msg do konca------------
+//--------przewin msg do konca------------
 	msg = przewinDo(msg, '\0');
 }
 uint8_t* przewinDo(uint8_t *msg, uint8_t znak) {
@@ -72,7 +83,7 @@ uint8_t* przewinDo(uint8_t *msg, uint8_t znak) {
 }
 uint8_t* readTemperature(uint8_t *msg, Subroutine *dataTemp,
 		uint8_t currentCycle) {
-	//--------jezeli faktycznieeee poprawnie uzyte----------
+//--------jezeli faktycznieeee poprawnie uzyte----------
 	if ((*msg) != '\0') {
 		//-------przewiń do S------
 		if (strstr((char*) msg, "S")) {
@@ -146,11 +157,10 @@ void show(List *head) {
 	else {
 		List *current = head;
 		uint8_t *wysylanaWiadomosc;
-		wysylanaWiadomosc =
-				(uint8_t*) malloc(
-						list_size(head) * sizeof(uint8_t)
-								* strlen(
-										"ID: %d\n\rNazwa: %s\n\rTyp regulacji: %s\n\r"));
+		wysylanaWiadomosc = (uint8_t*) malloc(
+				list_size(head) * sizeof(uint8_t)
+						* strlen("ID: %d\n\rNazwa: %s\n\rTyp regulacji: %s\n\r")
+						+ 13);
 		/*Przez to, że \s to raz PID, raz łańcuch o innej dlugosci, to niepoprawnie dobierana jest rzeczywista
 		 *  dlugosc calkowitego lancucha znakow i malloc dostaje niepoprawny rozmiar.
 		 *  mozna sprobowac np pisac size+=spintf(buffer[100]...) i na tym size pozniej zrobic malloc. 		 */
