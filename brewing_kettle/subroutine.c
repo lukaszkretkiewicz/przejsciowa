@@ -60,22 +60,42 @@ void convertToStucture(uint8_t *msg, struct List **prog) {
 		}
 		List *current = (*prog);
 
-		for (int i = 0; i < list_size((*prog)); i++, current = current->next) {
-			if ((*prog)->data.ID == tempData.ID) {
-				(*prog)->data = tempData;
+		for (int i = 0; i < list_size((*prog));
+				i++, current = (current)->next) {
+			if ((current)->data.ID == tempData.ID) {
+				(current)->data = tempData;
 				break;
-			}
+			} else if (i == list_size(*prog)-1)
+				HAL_UART_Transmit_DMA(&huart2, "Nie ma programu o takim ID\n\r",
+						sizeof("Nie ma programu o takim ID\n\r"));
+
 		}
 		//------jeżeli nie ma takiego programu----------
-		HAL_UART_Transmit_DMA(&huart2, "Nie ma programu o takim ID\n\r",
-								sizeof("Nie ma programu o takim ID\n\r"));
 
 	} else if (strncmp((char*) buffor, "ACTIVE", 6) == 0) { //----------ACTIVE-------------
+		uint8_t tempID;
+		msg = przewinDo(msg, '[');
+		msg = conv(msg, &tempID);
+		Subroutine *p; // wskaznik do konkretnego programu, ktory bedzie aktywowany
+		p = szukajID(*prog, tempID);
 
+		activeBrewing(*p);
 	}
 //--------przewin msg do konca------------
 	msg = przewinDo(msg, '\0');
 }
+Subroutine* szukajID(List *prog, uint8_t ID) {
+	List *current = prog;
+	for (int i = 0; i < list_size(prog); i++, current = current->next) {
+		if ((prog)->data.ID == ID) {
+			return &(prog)->data;
+		}
+	}
+}
+void activeBrewing(Subroutine data) {
+
+}
+
 uint8_t* przewinDo(uint8_t *msg, uint8_t znak) {
 	while (!(*(++msg) == znak))
 		;
