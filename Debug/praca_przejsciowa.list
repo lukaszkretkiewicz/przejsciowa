@@ -37,13 +37,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  16 .debug_macro  00017b2b  00000000  00000000  0002af00  2**0
                   CONTENTS, READONLY, DEBUGGING
- 17 .debug_line   00007d1b  00000000  00000000  00042a2b  2**0
+ 17 .debug_line   00007d1f  00000000  00000000  00042a2b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    00082dd2  00000000  00000000  0004a746  2**0
+ 18 .debug_str    00082dd2  00000000  00000000  0004a74a  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  000cd518  2**0
+ 19 .comment      0000007b  00000000  00000000  000cd51c  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002004  00000000  00000000  000cd594  2**2
+ 20 .debug_frame  00002004  00000000  00000000  000cd598  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -7154,9 +7154,9 @@ void show(List *head) {
  8002828:	4619      	mov	r1, r3
  800282a:	4833      	ldr	r0, [pc, #204]	; (80028f8 <show+0xf0>)
  800282c:	f7ff f940 	bl	8001ab0 <HAL_UART_Transmit_DMA>
-		} while (current != NULL);
 
-		HAL_UART_Transmit_DMA(&huart2, wysylanaWiadomosc, strlen((char*)wysylanaWiadomosc));
+		HAL_UART_Transmit_DMA(&huart2, wysylanaWiadomosc,
+				strlen((char*) wysylanaWiadomosc));
 		free(wysylanaWiadomosc);
 	}
 }
@@ -7177,25 +7177,25 @@ void show(List *head) {
  8002848:	f000 f8ba 	bl	80029c0 <malloc>
  800284c:	4603      	mov	r3, r0
  800284e:	61fb      	str	r3, [r7, #28]
-		uint8_t i=0;
+		uint8_t i = 0;
  8002850:	2300      	movs	r3, #0
  8002852:	f887 3023 	strb.w	r3, [r7, #35]	; 0x23
-			if(i==0){
+			if (i == 0) {
  8002856:	f897 3023 	ldrb.w	r3, [r7, #35]	; 0x23
  800285a:	2b00      	cmp	r3, #0
  800285c:	d114      	bne.n	8002888 <show+0x80>
-					current->data.ID, current->data.name,
+						current->data.ID, current->data.name,
  800285e:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  8002860:	781b      	ldrb	r3, [r3, #0]
-			sprintf((char*) wysylanaWiadomosc,
+				sprintf((char*) wysylanaWiadomosc,
  8002862:	4619      	mov	r1, r3
-					current->data.ID, current->data.name,
+						current->data.ID, current->data.name,
  8002864:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  8002866:	1c5a      	adds	r2, r3, #1
-					current->data.regType == 1 ? "PID" : "Dwustawna");
+						current->data.regType == 1 ? "PID" : "Dwustawna");
  8002868:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  800286a:	f893 3020 	ldrb.w	r3, [r3, #32]
-			sprintf((char*) wysylanaWiadomosc,
+				sprintf((char*) wysylanaWiadomosc,
  800286e:	2b00      	cmp	r3, #0
  8002870:	d001      	beq.n	8002876 <show+0x6e>
  8002872:	4b22      	ldr	r3, [pc, #136]	; (80028fc <show+0xf4>)
@@ -7208,24 +7208,25 @@ void show(List *head) {
  8002880:	69f8      	ldr	r0, [r7, #28]
  8002882:	f000 f97d 	bl	8002b80 <siprintf>
  8002886:	e018      	b.n	80028ba <show+0xb2>
-				sprintf((char*) wysylanaWiadomosc+strlen((char*)wysylanaWiadomosc),
+								+ strlen((char*) wysylanaWiadomosc),
  8002888:	69f8      	ldr	r0, [r7, #28]
  800288a:	f7fd fc5f 	bl	800014c <strlen>
  800288e:	4602      	mov	r2, r0
+				sprintf(
  8002890:	69fb      	ldr	r3, [r7, #28]
  8002892:	1898      	adds	r0, r3, r2
-									current->data.ID, current->data.name,
+						current->data.ID, current->data.name,
  8002894:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  8002896:	781b      	ldrb	r3, [r3, #0]
-				sprintf((char*) wysylanaWiadomosc+strlen((char*)wysylanaWiadomosc),
+				sprintf(
  8002898:	4619      	mov	r1, r3
-									current->data.ID, current->data.name,
+						current->data.ID, current->data.name,
  800289a:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  800289c:	1c5a      	adds	r2, r3, #1
-									current->data.regType == 1 ? "PID" : "Dwustawna");
+						current->data.regType == 1 ? "PID" : "Dwustawna");
  800289e:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  80028a0:	f893 3020 	ldrb.w	r3, [r3, #32]
-				sprintf((char*) wysylanaWiadomosc+strlen((char*)wysylanaWiadomosc),
+				sprintf(
  80028a4:	2b00      	cmp	r3, #0
  80028a6:	d001      	beq.n	80028ac <show+0xa4>
  80028a8:	4b14      	ldr	r3, [pc, #80]	; (80028fc <show+0xf4>)
@@ -7248,10 +7249,11 @@ void show(List *head) {
  80028ca:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  80028cc:	2b00      	cmp	r3, #0
  80028ce:	d1c2      	bne.n	8002856 <show+0x4e>
-		HAL_UART_Transmit_DMA(&huart2, wysylanaWiadomosc, strlen((char*)wysylanaWiadomosc));
+				strlen((char*) wysylanaWiadomosc));
  80028d0:	69f8      	ldr	r0, [r7, #28]
  80028d2:	f7fd fc3b 	bl	800014c <strlen>
  80028d6:	4603      	mov	r3, r0
+		HAL_UART_Transmit_DMA(&huart2, wysylanaWiadomosc,
  80028d8:	b29b      	uxth	r3, r3
  80028da:	461a      	mov	r2, r3
  80028dc:	69f9      	ldr	r1, [r7, #28]

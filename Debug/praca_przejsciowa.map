@@ -3356,7 +3356,7 @@ OUTPUT(praca_przejsciowa.elf elf32-littlearm)
  .debug_macro   0x00000000000179fa       0x20 brewing_kettle/subroutine.o
  .debug_macro   0x0000000000017a1a      0x111 brewing_kettle/subroutine.o
 
-.debug_line     0x0000000000000000     0x7d1b
+.debug_line     0x0000000000000000     0x7d1f
  .debug_line    0x0000000000000000      0x65b Core/Src/dma.o
  .debug_line    0x000000000000065b      0x669 Core/Src/gpio.o
  .debug_line    0x0000000000000cc4      0x930 Core/Src/main.o
@@ -3372,7 +3372,7 @@ OUTPUT(praca_przejsciowa.elf elf32-littlearm)
  .debug_line    0x000000000000521e      0x835 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
  .debug_line    0x0000000000005a53      0x8f9 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
  .debug_line    0x000000000000634c      0xf77 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.o
- .debug_line    0x00000000000072c3      0xa58 brewing_kettle/subroutine.o
+ .debug_line    0x00000000000072c3      0xa5c brewing_kettle/subroutine.o
 
 .debug_str      0x0000000000000000    0x82dd2
  .debug_str     0x0000000000000000    0x7c2a5 Core/Src/dma.o
