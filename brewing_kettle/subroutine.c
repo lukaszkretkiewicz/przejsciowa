@@ -65,7 +65,7 @@ void convertToStucture(uint8_t *msg, struct List **prog) {
 			if ((current)->data.ID == tempData.ID) {
 				(current)->data = tempData;
 				break;
-			} else if (i == list_size(*prog)-1)
+			} else if (i == list_size(*prog) - 1)
 				HAL_UART_Transmit_DMA(&huart2, "Nie ma programu o takim ID\n\r",
 						sizeof("Nie ma programu o takim ID\n\r"));
 
@@ -93,9 +93,31 @@ Subroutine* szukajID(List *prog, uint8_t ID) {
 	}
 }
 void activeBrewing(Subroutine data) {
-
+	//-----pętla grzania-------
+	for (int i = 0; i < 5; i++) {
+		if (data.regType == 1)
+			grzanieRegDwustawna(data.heatingCycle[i], data.hist);
+		else
+			grzanieRegPID(data.heatingCycle[i]);
+	}
 }
 
+void grzanieRegDwustawna(uint8_t *heatingCycle, double hysteresis) {
+	extern bool isHeating;
+	extern uint32_t startCounterTime;
+	extern double measuredTemperature;
+	uint32_t beginingOfHeating = startCounterTime;
+
+	while (beginingOfHeating <= heatingCycle[0] * 60) {
+		if ((double) heatingCycle[1] <= measuredTemperature - hysteresis)
+			isHeating = true;
+		else if ((double) heatingCycle[1] >= measuredTemperature + hysteresis)
+			isHeating = false;
+	}
+}
+void grzanieRegPID(uint8_t *heatingCycle){
+
+}
 uint8_t* przewinDo(uint8_t *msg, uint8_t znak) {
 	while (!(*(++msg) == znak))
 		;

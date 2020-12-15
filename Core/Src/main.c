@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -51,15 +52,16 @@
 //definicja listy
 List *head;
 
-bool isHeating; //załączenie grzania
+bool isHeating=false; //załączenie grzania
 bool regType; //true dla PID, false dla bang-bang
+double measuredTemperature; //zmierzona wartość temperatury
 double hist; //wartość histerezy
 uint8_t temperature; //nastawiona wartość temperatury
 uint8_t timeToEndHeating; //czas trwania aktualnego cyklu grzania
 uint8_t pageID; // numer aktualnie wyświetlanej strony
 uint8_t progID; // numer aktywnego programu
 uint8_t odebranaWiadomosc[110]; //string przychodzący z płytki
-
+uint32_t startCounterTime=0;
 
 /* USER CODE END PV */
 
@@ -68,7 +70,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void initOneWayList();
-
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) ;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -106,6 +108,7 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART2_UART_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 	HAL_UART_Receive_DMA(&huart2, odebranaWiadomosc, SIZE_OF_MSG);
 	//initOneWayList();
@@ -159,6 +162,11 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	//przerwanie co 1 sekundę
+
+	startCounterTime++;
+}
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance == USART2) {
 		HAL_UART_Receive_DMA(&huart2, odebranaWiadomosc, SIZE_OF_MSG);

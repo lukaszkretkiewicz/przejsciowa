@@ -34,7 +34,8 @@ uint16_t list_size(List *head);
 void convertToStucture(uint8_t *msg, struct List **prog); //funkcja zamieniająca tekst z wyswietlacza na dane struktury
 void activeBrewing(Subroutine data); // rozpoczęcie danego programu warzelnego
 Subroutine* szukajID(List *prog,uint8_t ID);
-
+void grzanieRegDwustawna(uint8_t *heatingCycle,double hysteresis);
+void grzanieRegPID(uint8_t *heatingCycle);
 uint8_t *conv(uint8_t *msg,uint8_t *digit); //zamienia cyfry w ciągu na uint8_t
 uint8_t *przewinDo(uint8_t *msg,uint8_t znak);
 #endif /* SUBROUTINE_H_ */
