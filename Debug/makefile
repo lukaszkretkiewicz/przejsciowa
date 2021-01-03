@@ -10,6 +10,7 @@ RM := rm -rf
 -include sources.mk
 -include brewing_kettle/subdir.mk
 -include Drivers/STM32F1xx_HAL_Driver/Src/subdir.mk
+-include DS18B20LIB/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
 -include subdir.mk
@@ -48,7 +49,7 @@ all: praca_przejsciowa.elf secondary-outputs
 
 # Tool invocations
 praca_przejsciowa.elf: $(OBJS) $(USER_OBJS) E:\projekciki\stm32\praca_przejsciowa\STM32F103RBTX_FLASH.ld
-	arm-none-eabi-gcc -o "praca_przejsciowa.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"E:\projekciki\stm32\praca_przejsciowa\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="praca_przejsciowa.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "praca_przejsciowa.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"E:\projekciki\stm32\praca_przejsciowa\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="praca_przejsciowa.map" -Wl,--gc-sections -static -u_printf_float --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

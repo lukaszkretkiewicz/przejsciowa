@@ -91,6 +91,7 @@ Subroutine* szukajID(List *prog, uint8_t ID) {
 			return &(prog)->data;
 		}
 	}
+	return NULL;
 }
 void activeBrewing(Subroutine data) {
 	//-----pętla grzania-------
@@ -111,6 +112,7 @@ void grzanieRegDwustawna(uint8_t *heatingCycle, double hysteresis) {
 	while (beginingOfHeating <= heatingCycle[0] * 60) {
 		if ((double) heatingCycle[1] <= measuredTemperature - hysteresis)
 			isHeating = true;
+		//HAL_GPIO_WritePin(GPIOx, GPIO_Pin, PinState)
 		else if ((double) heatingCycle[1] >= measuredTemperature + hysteresis)
 			isHeating = false;
 	}

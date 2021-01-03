@@ -26,7 +26,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
  ../Core/Inc/dma.h ../Core/Inc/main.h ../Core/Inc/tim.h \
  ../Core/Inc/usart.h ../Core/Inc/gpio.h \
- E:/projekciki/stm32/praca_przejsciowa/brewing_kettle/subroutine.h
+ E:/projekciki/stm32/praca_przejsciowa/brewing_kettle/subroutine.h \
+ E:/projekciki/stm32/praca_przejsciowa/DS18B20LIB/DS18B20.h
 
 ../Core/Inc/main.h:
 
@@ -91,3 +92,5 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/gpio.h:
 
 E:/projekciki/stm32/praca_przejsciowa/brewing_kettle/subroutine.h:
+
+E:/projekciki/stm32/praca_przejsciowa/DS18B20LIB/DS18B20.h:

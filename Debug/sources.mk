@@ -21,6 +21,7 @@ OBJCOPY_BIN :=
 SUBDIRS := \
 Core/Src \
 Core/Startup \
+DS18B20LIB \
 Drivers/STM32F1xx_HAL_Driver/Src \
 brewing_kettle \
 
