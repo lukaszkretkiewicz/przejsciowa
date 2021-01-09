@@ -30,6 +30,11 @@ endif
 
 -include ../makefile.defs
 
+BUILD_ARTIFACT_NAME := praca_przejsciowa
+BUILD_ARTIFACT_EXTENSION := elf
+BUILD_ARTIFACT_PREFIX := 
+BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME).$(BUILD_ARTIFACT_EXTENSION)
+
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
 praca_przejsciowa.elf \
@@ -45,11 +50,14 @@ praca_przejsciowa.bin \
 
 
 # All Target
-all: praca_przejsciowa.elf secondary-outputs
+all: main-build
+
+# Main-build Target
+main-build: praca_przejsciowa.elf secondary-outputs
 
 # Tool invocations
-praca_przejsciowa.elf: $(OBJS) $(USER_OBJS) E:\projekciki\stm32\praca_przejsciowa\STM32F103RBTX_FLASH.ld
-	arm-none-eabi-gcc -o "praca_przejsciowa.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"E:\projekciki\stm32\praca_przejsciowa\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="praca_przejsciowa.map" -Wl,--gc-sections -static -u_printf_float --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+praca_przejsciowa.elf: $(OBJS) $(USER_OBJS) C:\Pozostale\projekciki\stm32\praca_przejsciowa\STM32F103RBTX_FLASH.ld
+	arm-none-eabi-gcc -o "praca_przejsciowa.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Pozostale\projekciki\stm32\praca_przejsciowa\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="praca_przejsciowa.map" -Wl,--gc-sections -static -u_printf_float --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -75,7 +83,14 @@ clean:
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_BIN)
 
-.PHONY: all clean dependents
+fail-specified-linker-script-missing:
+	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'
+	@exit 2
+
+warn-no-linker-script-specified:
+	@echo 'Warning: No linker script specified. Check the linker settings in the build configuration.'
+
+.PHONY: all clean dependents fail-specified-linker-script-missing warn-no-linker-script-specified
 .SECONDARY:
 
 -include ../makefile.targets

@@ -11,6 +11,17 @@
 #include "stm32f1xx_hal.h"
 #include "usart.h"
 #include <stdbool.h>
+#include "tim.h"
+// FLAGI
+bool startPIDReg;
+bool startBangBang;
+bool startPumping;
+#define GRZALKA_PORT Grzalka_GPIO_Port
+#define GRZALKA_PIN Grzalka_Pin
+
+#define POMPKA_PORT Pompka_GPIO_Port
+#define POMPKA_PIN Pompka_Pin
+
 typedef struct Subroutine {
 	uint8_t ID; //ID programu
 	char name[20]; //nazwa programu
@@ -25,7 +36,7 @@ typedef struct List {
 	struct Subroutine data;
 	struct List *next;
 } List;
-
+void subroutine_Init();
 uint8_t* readTemperature(uint8_t *msg, Subroutine *dataTemp,uint8_t currentCycle); //Konwertuje ciąg S...T... na dane
 void push_front(List **head, Subroutine data);
 void push_back(List **head, Subroutine data);
@@ -34,9 +45,12 @@ uint16_t list_size(List *head);
 void convertToStucture(uint8_t *msg, struct List **prog); //funkcja zamieniająca tekst z wyswietlacza na dane struktury
 void activeBrewing(Subroutine data); // rozpoczęcie danego programu warzelnego
 Subroutine* szukajID(List *prog,uint8_t ID);
-void grzanieRegDwustawna(uint8_t *heatingCycle,double hysteresis);
+void grzanieRegDwustawna(uint8_t setTemperature, uint8_t timeOfHeating,
+		double hysteresis, uint8_t* numberOfCycle);
 void grzanieRegPID(uint8_t *heatingCycle);
-uint8_t *conv(uint8_t *msg,uint8_t *digit); //zamienia cyfry w ciągu na uint8_t
+void pumping(uint8_t timeOfPumping);
+uint8_t *conv(uint8_t *msg,uint8_t *digit); //zamienia cyfry w ciągu znakow na uint8_t
+uint8_t* convDouble(uint8_t *msg, double *digit); //zamienia cyfry w ciągu znakow na double
 uint8_t *przewinDo(uint8_t *msg,uint8_t znak);
 #endif /* SUBROUTINE_H_ */
 
