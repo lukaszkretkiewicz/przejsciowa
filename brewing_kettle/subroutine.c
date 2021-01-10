@@ -10,6 +10,25 @@
 #include<stdlib.h>
 #include<main.h>
 #include<stm32f1xx.h>
+void setProgram(uint8_t *msg, struct Subroutine *data) {
+	uint8_t buffor[10];
+	uint8_t i = 0;
+
+	//wypelnienie tablicy name[] i heatingCycle zerami
+
+	//przewin do ' ' i pobierz komendę do buffora, aby ją porównać
+	while ((buffor[i++] = *msg++) != ' ')
+		;
+	if (strncmp((char*) buffor, "SET", 3) == 0) { //-------------SET-------------
+		msg = przewinDo(msg, ':');
+
+		//----------odszyfrowanie temperatur----------
+		for (uint8_t i = 0; i < 5; i++) {
+			msg = readTemperature(msg, data, i);
+		}
+	}
+
+}
 void convertToStucture(uint8_t *msg, struct List **prog) {
 	uint8_t buffor[10];
 	uint8_t i = 0;
@@ -22,7 +41,7 @@ void convertToStucture(uint8_t *msg, struct List **prog) {
 	for (int i = 0; i < 5; i++)
 		for (int j = 0; j < 2; j++)
 			tempData.heatingCycle[i][j] = 0;
-
+	tempData.pumpingTime = 0;
 	//przewin do ' ' i pobierz komendę do buffora, aby ją porównać
 	while ((buffor[i++] = *msg++) != ' ')
 		;
@@ -48,29 +67,12 @@ void convertToStucture(uint8_t *msg, struct List **prog) {
 	} else if (strncmp((char*) buffor, "READ", 4) == 0) {
 
 	} else if (strncmp((char*) buffor, "SET", 3) == 0) { //-------------SET-------------
-		msg = przewinDo(msg, '[');
-		msg = conv(msg, &tempData.ID);
-		msg = przewinDo(msg, '[');
-		uint8_t i = 0;
-		while (!(*(++msg) == ']'))
-			tempData.name[i++] = *msg; // tymczasowa nazwa
+		msg = przewinDo(msg, ':');
+
 		//----------odszyfrowanie temperatur----------
 		for (uint8_t i = 0; i < 5; i++) {
 			msg = readTemperature(msg, &tempData, i);
 		}
-		List *current = (*prog);
-
-		for (int i = 0; i < list_size((*prog));
-				i++, current = (current)->next) {
-			if ((current)->data.ID == tempData.ID) {
-				(current)->data = tempData;
-				break;
-			} else if (i == list_size(*prog) - 1)
-				HAL_UART_Transmit_DMA(&huart2, "Nie ma programu o takim ID\n\r",
-						sizeof("Nie ma programu o takim ID\n\r"));
-
-		}
-		//------jeżeli nie ma takiego programu----------
 
 	} else if (strncmp((char*) buffor, "ACTIVE", 6) == 0) { //----------ACTIVE-------------
 		uint8_t tempID;
@@ -108,17 +110,25 @@ void activeBrewing(Subroutine data) {
 	}
 
 }
-void subroutine_Init() {
+void subroutine_Init(struct Subroutine *data) {
 	startPIDReg = false;
 	startBangBang = false;
 	startPumping = false;
+	for (int i = 0; i < sizeof(data->name); i++) {
+		data->name[i]=0;
+
+		}
+		for (int i = 0; i < 5; i++)
+			for (int j = 0; j < 2; j++)
+				data->heatingCycle[i][j] = 0;
+		data->pumpingTime = 0;
 }
 void pumping(uint8_t timeOfPumping) {
 	if (__HAL_TIM_GET_COUNTER(&htim1) <= timeOfPumping * 60) {
 		HAL_GPIO_WritePin(POMPKA_PORT, POMPKA_PIN, GPIO_PIN_SET);
 	} else {
 		HAL_GPIO_WritePin(POMPKA_PORT, POMPKA_PIN, GPIO_PIN_RESET);
-		startPumping=false;
+		startPumping = false;
 	}
 }
 void grzanieRegDwustawna(uint8_t setTemperature, uint8_t timeOfHeating,
@@ -166,7 +176,9 @@ uint8_t* readTemperature(uint8_t *msg, Subroutine *dataTemp,
 			while ((*msg++) != 'S')
 				;
 			//-------PID lub dwustawna--------
-			dataTemp->regType = *msg++ == 0 ? false : true;
+			dataTemp->regType = *msg == 0 ? BANGBANG : PID;
+			msg = przewinDo(msg, ';');
+			*msg++;
 		}
 		//-------Wypełnienie cykli--------
 

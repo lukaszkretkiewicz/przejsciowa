@@ -16,12 +16,17 @@
 bool startPIDReg;
 bool startBangBang;
 bool startPumping;
+
+
 #define GRZALKA_PORT Grzalka_GPIO_Port
 #define GRZALKA_PIN Grzalka_Pin
 
 #define POMPKA_PORT Pompka_GPIO_Port
 #define POMPKA_PIN Pompka_Pin
-
+typedef enum {
+		BANGBANG=0,
+		PID=1
+	}RegType;// typ regulacji
 typedef struct Subroutine {
 	uint8_t ID; //ID programu
 	char name[20]; //nazwa programu
@@ -29,14 +34,16 @@ typedef struct Subroutine {
 								//(jeżeli cykl składa się z mniej niż 5 przedziałów, to w miejscu temperatury i czasu wpisane są 0)
 								//pierwsza kolumna to temperatura, druga to czas
 	uint8_t pumpingTime; //czas wysładzania na końcu cyklu (0, jeżeli ma być nieaktywne)
-	bool regType; // typ regulacji
+	RegType regType;
+	//bool regType; // typ regulacji
 	double hist; //wartość histerezy
 } Subroutine;
 typedef struct List {
 	struct Subroutine data;
 	struct List *next;
 } List;
-void subroutine_Init();
+void subroutine_Init(struct Subroutine *data);
+void setProgram(uint8_t *msg, struct Subroutine *data);
 uint8_t* readTemperature(uint8_t *msg, Subroutine *dataTemp,uint8_t currentCycle); //Konwertuje ciąg S...T... na dane
 void push_front(List **head, Subroutine data);
 void push_back(List **head, Subroutine data);
