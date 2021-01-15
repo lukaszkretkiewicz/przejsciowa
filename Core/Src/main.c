@@ -39,8 +39,12 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define SIZE_OF_MSG 36 //NEW PROG:[5];S0T12t66;T33t18,
-//SET PROG:S1;T55t18;T66t44;T89t10;P15
+#define SIZE_OF_MSG 60 //NEW PROG:[5];S0T12t66;T33t18,
+//S1T55;000000000000000000000000000000000000000000000000000000
+//S0T55H10;000000000000000000000000000000000000000000000000000
+//SET PROG:S1;T50t85;T35t70;T70t30;T0t0;T0t0;P10;0000000000000
+//SET PROG:S0H10;T20t40;T50t80;T50t30;T0t0;T0t85;P20;000000000
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -173,10 +177,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		//przerwanie co 1 sekundę
 		startCounterTime++;
 
-		uint8_t msg[100];
-		sprintf(msg, (char*) "Wartosc temperatury wynosi %.2lf\n\r",
-				measuredTemperature);
-		HAL_UART_Transmit_DMA(&huart2, msg, strlen(msg));
+		if (measuredTemperature > 1.0) {
+			uint8_t msg[100];
+			sprintf(msg, (const char*) "Wartosc temperatury wynosi %.2lf\n\r",
+					measuredTemperature);
+			HAL_UART_Transmit_DMA(&huart2, msg, strlen(msg));
+		}
+
 		if (startBangBang) {
 			static uint8_t numberOfCycle = 0;
 			grzanieRegDwustawna(head->data.heatingCycle[numberOfCycle][0],
@@ -202,8 +209,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 void initOneWayList() {
 	head = (List*) malloc(sizeof(List));
 	head = NULL;
-	for (int i = 0; i < sizeof(head->data.name[i] = 0); i++)
-		; //wypelnienie tablicy name zerami
+
 }
 
 /* USER CODE END 4 */

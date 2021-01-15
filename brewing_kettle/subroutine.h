@@ -28,8 +28,6 @@ typedef enum {
 		PID=1
 	}RegType;// typ regulacji
 typedef struct Subroutine {
-	uint8_t ID; //ID programu
-	char name[20]; //nazwa programu
 	uint8_t heatingCycle[5][2]; //tablica temperatur oraz odpowiadających im czasów grzania
 								//(jeżeli cykl składa się z mniej niż 5 przedziałów, to w miejscu temperatury i czasu wpisane są 0)
 								//pierwsza kolumna to temperatura, druga to czas
@@ -51,7 +49,7 @@ void show(List *head);
 uint16_t list_size(List *head);
 void convertToStucture(uint8_t *msg, struct List **prog); //funkcja zamieniająca tekst z wyswietlacza na dane struktury
 void activeBrewing(Subroutine data); // rozpoczęcie danego programu warzelnego
-Subroutine* szukajID(List *prog,uint8_t ID);
+
 void grzanieRegDwustawna(uint8_t setTemperature, uint8_t timeOfHeating,
 		double hysteresis, uint8_t* numberOfCycle);
 void grzanieRegPID(uint8_t *heatingCycle);
