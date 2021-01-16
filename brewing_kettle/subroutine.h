@@ -13,10 +13,11 @@
 #include <stdbool.h>
 #include "tim.h"
 // FLAGI
-bool startPIDReg;
-bool startBangBang;
-bool startPumping;
-
+volatile bool startPIDReg;
+volatile bool startBangBang;
+volatile bool startPumping;
+volatile bool startPumpingWithoutTime;
+volatile bool startMeasure;
 
 #define GRZALKA_PORT Grzalka_GPIO_Port
 #define GRZALKA_PIN Grzalka_Pin

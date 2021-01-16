@@ -19,16 +19,25 @@ void setProgram(uint8_t *msg, struct Subroutine *data) {
 		msg = przewinDo(msg, ':');
 
 		//----------odszyfrowanie temperatur----------
-		//while(msg = readTemperature(msg, data, i)!=NULL);
+
 		for (uint8_t i = 0; i < 6; i++) {
 			msg = readTemperature(msg, data, i);
 		}
+		activeBrewing(*data);
 	} else if (strncmp((char*) msg, "STOP", 4) == 0) { //--------STOP--------------
-		startBangBang = false;
-		startPIDReg = false;
-		startPumping = false;
-	} else {
-		msg = readTemperature(msg, data, i);
+		subroutine_Init(data);
+	} else if (strstr((char*) msg, "P1")) { //----------P1-------------
+		subroutine_Init(data);
+		extern uint32_t startCounterTime;
+		startCounterTime=0;
+		data->pumpingTime = 30;
+		startPumping = 1;
+	} else if (strstr((char*) msg, "P0")) {//-----------P0--------------
+		data->pumpingTime = 0;
+		startPumping = 0;
+		HAL_GPIO_WritePin(POMPKA_PORT, POMPKA_PIN, GPIO_PIN_RESET);
+	}else{
+
 	}
 
 }
@@ -79,13 +88,13 @@ void convertToStucture(uint8_t *msg, struct List **prog) {
 }
 void activeBrewing(Subroutine data) {
 //-----pętla grzania-------
-	if (data.regType == 0) {
-		__HAL_TIM_SET_COUNTER(&htim1, 0);
+	extern uint32_t CounterHeating;
+	CounterHeating=0;
+	if (data.regType == BANGBANG) {
 		startBangBang = true;
 		startPIDReg = false;
 		//grzanieRegDwustawna(data.heatingCycle[i], data.hist);
 	} else {
-		__HAL_TIM_SET_COUNTER(&htim1, 0);
 		startBangBang = false;
 		startPIDReg = true;
 		//grzanieRegPID(data.heatingCycle[i]);
@@ -101,9 +110,12 @@ void subroutine_Init(struct Subroutine *data) {
 		for (int j = 0; j < 2; j++)
 			data->heatingCycle[i][j] = 0;
 	data->pumpingTime = 0;
+	HAL_GPIO_WritePin(POMPKA_PORT, POMPKA_PIN, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GRZALKA_PORT, GRZALKA_PIN, GPIO_PIN_RESET);
 }
 void pumping(uint8_t timeOfPumping) {
-	if (__HAL_TIM_GET_COUNTER(&htim1) <= timeOfPumping * 60) {
+	extern uint32_t CounterPump;
+	if (CounterPump <= timeOfPumping * 60) {
 		HAL_GPIO_WritePin(POMPKA_PORT, POMPKA_PIN, GPIO_PIN_SET);
 	} else {
 		HAL_GPIO_WritePin(POMPKA_PORT, POMPKA_PIN, GPIO_PIN_RESET);
@@ -113,28 +125,28 @@ void pumping(uint8_t timeOfPumping) {
 void grzanieRegDwustawna(uint8_t setTemperature, uint8_t timeOfHeating,
 		double hysteresis, uint8_t *numberOfCycle) {
 	extern bool isHeating;
-//extern uint32_t startCounterTime;
 	extern double measuredTemperature;
-//uint32_t beginingOfHeating = startCounterTime;
-
-	if (__HAL_TIM_GET_COUNTER(&htim1) <= timeOfHeating * 60) {
-		if ((double) setTemperature <= measuredTemperature - hysteresis) {
+	extern uint32_t CounterHeating;
+	if (CounterHeating <= timeOfHeating * 60) {
+		if ((double) setTemperature >= measuredTemperature - hysteresis) {
 			isHeating = true;
 			HAL_GPIO_WritePin(GRZALKA_PORT, GRZALKA_PIN, GPIO_PIN_SET);
 		} else if ((double) setTemperature
-				>= measuredTemperature + hysteresis) {
+				< measuredTemperature + hysteresis) {
 			isHeating = false;
 			HAL_GPIO_WritePin(GRZALKA_PORT, GRZALKA_PIN, GPIO_PIN_RESET);
 		}
 	} else {
-		__HAL_TIM_SET_COUNTER(&htim1, 0);
+		HAL_GPIO_WritePin(GRZALKA_PORT, GRZALKA_PIN, GPIO_PIN_RESET);
+		CounterHeating=0;
 		if (*numberOfCycle < 4)
 			(*numberOfCycle)++;
 		else {
-			numberOfCycle = 0;
+			*numberOfCycle = 0;
 			startBangBang = false;
 			startPumping = true;
-			__HAL_TIM_SET_COUNTER(&htim1, 0);
+			extern uint32_t CounterPump;
+			CounterPump=0;
 		}
 	}
 }
@@ -187,8 +199,8 @@ uint8_t* readTemperature(uint8_t *msg, Subroutine *dataTemp,
 
 		}
 		return (*msg) != '\0' ? ++msg : msg; //zwroc wskaznik w ostatnim polozeniu
-	}else
-		return msg=NULL;
+	} else
+		return msg = NULL;
 	//return (*msg) != '\0' ? ++msg : msg; //zwroc wskaznik w ostatnim polozeniu
 }
 uint8_t* conv(uint8_t *msg, uint8_t *digit) {

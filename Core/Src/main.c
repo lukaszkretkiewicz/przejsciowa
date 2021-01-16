@@ -44,7 +44,9 @@
 //S0T55H10;000000000000000000000000000000000000000000000000000
 //SET PROG:S1;T50t85;T35t70;T70t30;T0t0;T0t0;P10;0000000000000
 //SET PROG:S0H10;T20t40;T50t80;T50t30;T0t0;T0t85;P20;000000000
-
+//P1;000000000000000000000000000000000000000000000000000000000
+//SET PROG:S0H10;T23t1;T0t0;T0t0;T0t0;T0t0;P1;0000000000000000
+//STOP PROG;00000000000000000000000000000000000000000000000000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -68,7 +70,12 @@ uint8_t pageID; // numer aktualnie wyświetlanej strony
 uint8_t progID; // numer aktywnego programu
 uint8_t odebranaWiadomosc[110]; //string przychodzący z płytki
 uint32_t startCounterTime = 0;
-
+uint32_t CounterPump = 0;
+uint32_t CounterHeating = 0;
+uint8_t CounterMeasure = 0;
+extern volatile bool startPIDReg;
+extern volatile bool startBangBang;
+extern volatile bool startPumping;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -127,7 +134,29 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
-		DS18B20_Full(&measuredTemperature);
+		if (startMeasure) {
+			DS18B20_Full(&measuredTemperature);
+			startMeasure = 0;
+			if (measuredTemperature > 1.0) {
+				uint8_t msg[100];
+				sprintf(msg,
+						(const char*) "Wartosc temperatury wynosi %.1lf\n\r",
+						measuredTemperature);
+				HAL_UART_Transmit_DMA(&huart2, msg, strlen(msg));
+			}
+		}
+		if (startBangBang) {
+			static uint8_t numberOfCycle = 0;
+			grzanieRegDwustawna(kociol.heatingCycle[numberOfCycle][0],
+					kociol.heatingCycle[numberOfCycle][1], kociol.hist,
+					&numberOfCycle);
+		} else if (startPIDReg) {
+
+		} else if (startPumping) {
+			pumping(kociol.pumpingTime);
+		} else if (startPumpingWithoutTime) {
+
+		}
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
@@ -176,26 +205,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		//przerwanie co 1 sekundę
 		startCounterTime++;
-
-		if (measuredTemperature > 1.0) {
-			uint8_t msg[100];
-			sprintf(msg, (const char*) "Wartosc temperatury wynosi %.2lf\n\r",
-					measuredTemperature);
-			HAL_UART_Transmit_DMA(&huart2, msg, strlen(msg));
+		CounterPump++;
+		CounterHeating++;
+		CounterMeasure++;
+		//pomiar co 3s
+		if (CounterMeasure >= 3) {
+			CounterMeasure = 0;
+			startMeasure = 1;
 		}
-
-		if (startBangBang) {
-			static uint8_t numberOfCycle = 0;
-			grzanieRegDwustawna(head->data.heatingCycle[numberOfCycle][0],
-					head->data.heatingCycle[numberOfCycle][1], head->data.hist,
-					&numberOfCycle);
-		}
-	} else if (startPIDReg) {
-
-	} else if (startPumping) {
-		pumping(head->data.pumpingTime);
 	}
-
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance == USART2) {
