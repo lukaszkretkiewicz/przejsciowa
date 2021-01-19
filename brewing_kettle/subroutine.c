@@ -29,14 +29,14 @@ void setProgram(uint8_t *msg, struct Subroutine *data) {
 	} else if (strstr((char*) msg, "P1")) { //----------P1-------------
 		subroutine_Init(data);
 		extern uint32_t startCounterTime;
-		startCounterTime=0;
+		startCounterTime = 0;
 		data->pumpingTime = 30;
 		startPumping = 1;
-	} else if (strstr((char*) msg, "P0")) {//-----------P0--------------
+	} else if (strstr((char*) msg, "P0")) { //-----------P0--------------
 		data->pumpingTime = 0;
 		startPumping = 0;
 		HAL_GPIO_WritePin(POMPKA_PORT, POMPKA_PIN, GPIO_PIN_RESET);
-	}else{
+	} else {
 
 	}
 
@@ -89,7 +89,7 @@ void convertToStucture(uint8_t *msg, struct List **prog) {
 void activeBrewing(Subroutine data) {
 //-----pętla grzania-------
 	extern uint32_t CounterHeating;
-	CounterHeating=0;
+	CounterHeating = 0;
 	if (data.regType == BANGBANG) {
 		startBangBang = true;
 		startPIDReg = false;
@@ -131,14 +131,13 @@ void grzanieRegDwustawna(uint8_t setTemperature, uint8_t timeOfHeating,
 		if ((double) setTemperature >= measuredTemperature - hysteresis) {
 			isHeating = true;
 			HAL_GPIO_WritePin(GRZALKA_PORT, GRZALKA_PIN, GPIO_PIN_SET);
-		} else if ((double) setTemperature
-				< measuredTemperature + hysteresis) {
+		} else if ((double) setTemperature < measuredTemperature + hysteresis) {
 			isHeating = false;
 			HAL_GPIO_WritePin(GRZALKA_PORT, GRZALKA_PIN, GPIO_PIN_RESET);
 		}
 	} else {
 		HAL_GPIO_WritePin(GRZALKA_PORT, GRZALKA_PIN, GPIO_PIN_RESET);
-		CounterHeating=0;
+		CounterHeating = 0;
 		if (*numberOfCycle < 4)
 			(*numberOfCycle)++;
 		else {
@@ -146,7 +145,7 @@ void grzanieRegDwustawna(uint8_t setTemperature, uint8_t timeOfHeating,
 			startBangBang = false;
 			startPumping = true;
 			extern uint32_t CounterPump;
-			CounterPump=0;
+			CounterPump = 0;
 		}
 	}
 }
@@ -223,4 +222,21 @@ uint8_t* convDouble(uint8_t *msg, double *digit) {
 	(*digit) = atof((char*) temp);
 	return msg;
 }
+char* textConversion(double dTemperature, char* targetVariable) {
+	char* temp;
+	temp = malloc(sizeof(char) * 25);
+	char sTemperature[10]="";
+	extern double measuredTemperature;
+	strcpy(temp, targetVariable);
+	sprintf(temp+strlen(temp), ".val=");
+	itoa((int)(10.0 * measuredTemperature), sTemperature, 10);
+	sprintf(temp + strlen(temp), sTemperature);
 
+	return temp;
+}
+
+/*T_aktualna.val=50
+ 255
+ 255
+ 255
+ */
