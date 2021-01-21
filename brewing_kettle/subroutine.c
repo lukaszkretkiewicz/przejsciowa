@@ -11,8 +11,11 @@
 #include<main.h>
 #include<stm32f1xx.h>
 void setProgram(uint8_t *msg, struct Subroutine *data) {
+
 	char buffor[10] = "";
 	uint8_t i = 0;
+	char buffor2[62]="";
+	strcpy(buffor2,(char*)msg);
 	memset(buffor, '\0', sizeof(buffor));
 	strncpy(buffor, (char*) msg, 4);
 	if (strncmp((char*) msg, "SET", 3) == 0) { //-------------SET-------------
